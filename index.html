@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarah's ATM!</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: white;
+    background: #071150;
+}
+
+.atm {
+    width: 100%;
+    max-width: 450px;
+    padding: 30px;
+    text-align: center;
+    border: 2px solid #d745ee;
+    border-radius: 24px;
+    background: #101b68;
+    box-shadow: 0 0 25px #d745ee55;
+}
+
+h1 {
+    color: #ff69d4;
+    margin-top: 0;
+}
+
+.subtitle {
+    color: #c9caff;
+    margin-bottom: 25px;
+}
+
+button, input {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0;
+    border-radius: 12px;
+    font-size: 16px;
+}
+
+button {
+    border: none;
+    color: white;
+    background: #6548e8;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: scale(1.03);
+    filter: brightness(1.2);
+}
+
+.check {
+    background: #d745a9;
+}
+
+.withdraw {
+    background: #e87932;
+}
+
+.deposit {
+    background: #159d78;
+}
+
+.exit {
+    background: #41476e;
+}
+
+input {
+    border: 2px solid #9d8aff;
+    outline: none;
+    background: #071150;
+    color: white;
+}
+
+input:focus {
+    border-color: #ff69d4;
+}
+
+.message {
+    display: none;
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+
+.success {
+    display: block;
+    color: #8dffcb;
+    background: #123c50;
+}
+
+.error {
+    display: block;
+    color: #ffb1c1;
+    background: #51213f;
+}
+
+.balance-amount {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8dffcb;
+    margin-top: 8px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.small {
+    font-size: 13px;
+    color: #c9caff;
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="atm">
+
+    <div id="atmScreen">
+        <h1>💳 Sarah's ATM!</h1>
+        <p class="subtitle">Welcome! What would you like to do?</p>
+
+        <button class="check" onclick="checkBalance()">
+            💰 Check Balance
+        </button>
+
+        <div id="balanceArea" class="hidden">
+            <p>Your current balance is:</p>
+            <div class="balance-amount" id="balanceText"></div>
+        </div>
+
+        <hr style="border-color:#494d91; margin:22px 0;">
+
+        <input
+            type="number"
+            id="amount"
+            placeholder="Enter amount (₹)"
+            min="1"
+            step="1"
+        >
+
+        <button class="withdraw" onclick="withdrawMoney()">
+            💸 Withdraw
+        </button>
+
+        <button class="deposit" onclick="depositMoney()">
+            💵 Deposit
+        </button>
+
+        <button class="exit" onclick="exitATM()">
+            🚪 Exit ATM
+        </button>
+
+        <div id="message" class="message"></div>
+
+        <p class="small">✨ Your money, your choices! ✨</p>
+    </div>
+
+    <div id="exitScreen" class="hidden">
+        <h1>👋 Goodbye!</h1>
+        <p class="subtitle">
+            You have exited Sarah's ATM successfully.
+        </p>
+
+        <p>Thank you for visiting! 💖</p>
+
+        <button onclick="returnToATM()">
+            🔙 Return to ATM
+        </button>
+    </div>
+
+</div>
+
+<script>
+let balance = 676767;
+
+function formatMoney(amount) {
+    return "₹" + amount.toLocaleString("en-IN");
+}
+
+function showMessage(text, type) {
+    const box = document.getElementById("message");
+    box.textContent = text;
+    box.className = "message " + type;
+}
+
+function checkBalance() {
+    document.getElementById("balanceText").textContent =
+        formatMoney(balance);
+
+    document.getElementById("balanceArea").classList.remove("hidden");
+
+    showMessage("Balance checked successfully! 💖", "success");
+}
+
+function getAmount() {
+    const input = document.getElementById("amount");
+    const amount = Number(input.value);
+
+    if (input.value.trim() === "" ||
+        !Number.isFinite(amount) ||
+        !Number.isInteger(amount) ||
+        amount <= 0) {
+        showMessage("Please enter a valid positive whole-number amount!", "error");
+        return null;
+    }
+
+    return amount;
+}
+
+function withdrawMoney() {
+    const amount = getAmount();
+    if (amount === null) return;
+
+    if (amount > balance) {
+        showMessage("Insufficient balance! You cannot withdraw that amount. 😬", "error");
+        return;
+    }
+
+    balance -= amount;
+    document.getElementById("balanceArea").classList.add("hidden");
+    document.getElementById("amount").value = "";
+
+    showMessage(
+        "Withdrawal successful! You withdrew " +
+        formatMoney(amount) + ". 💸",
+        "success"
+    );
+}
+
+function depositMoney() {
+    const amount = getAmount();
+    if (amount === null) return;
+
+    balance += amount;
+    document.getElementById("balanceArea").classList.add("hidden");
+    document.getElementById("amount").value = "";
+
+    showMessage(
+        "Deposit successful! You deposited " +
+        formatMoney(amount) + ". 💵",
+        "success"
+    );
+}
+
+function exitATM() {
+    document.getElementById("atmScreen").classList.add("hidden");
+    document.getElementById("exitScreen").classList.remove("hidden");
+}
+
+function returnToATM() {
+    document.getElementById("exitScreen").classList.add("hidden");
+    document.getElementById("atmScreen").classList.remove("hidden");
+
+    document.getElementById("balanceArea").classList.add("hidden");
+    document.getElementById("amount").value = "";
+    document.getElementById("message").className = "message";
+}
+</script>
+
+</body>
+</html>
